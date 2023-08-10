@@ -2,11 +2,14 @@
 
 This is a working standalone prototype PoUW Dashboard for Dynex.
 
-This is a reference model is currently running on DeepMinerz pool at the following link 
+This is a reference model, this is currently running on DeepMinerz Pool at the following link 
 https://pool.deepminerz.com/#dynexjobs
 
-This dashboard currently pulls the working jobs as well as completed jobs.
-
+Dashboard Status
+* Current Working Jobs
+* Completed Jobs
+* Basic Styling
+* Basic Javascript/jQuery for interacting with Dynex PoUW API
 
 Credit
 Y3TI & Dminerz - DeepMinerz Pool
