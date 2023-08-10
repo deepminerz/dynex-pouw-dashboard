@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/bootstrap_custom.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <title>DeepMinerz PoUW Example Dashboard</title>
+</head>
+<body>
+	<div class="d-flex wrapper" id="wrapper">
+		<div class="container-fluid mt-2 px-2 px-lg-4">  
+			<div class="row mb-0">
+				<div class="col-sm-12 col-md-12 col-xl-12 col-xxl-12">
+					<div class="price-box">
+						<div><p class="text-white mb-0">Current Ongoing Dynex Jobs</p></div>				
+						<div class="row mt-2" id="currentDnxJobs"><small>Loading....</small></div>
+					</div>
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-sm-12 col-md-12 col-xl-12 col-xxl-12">
+					<div class="price-box">
+						<div><p class="text-white mb-0">Recent Completed Dynex Jobs</p></div>				
+						<div class="row mt-2" id="completeDnxJobs"><small>Loading....</small></div>				
+					</div>
+				</div>
+			</div>
+			<div class="row mt-3">
+				<div class="col-sm-12 col-md-12 col-xl-12 col-xxl-12">
+					<div class="text-center mt-2 mb-2"><p class="text-white mb-0">Copyright&copy; Dynex. All rights reserved.</p></div>
+				</div>
+			</div>				
+		</div>
+	</div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timeago/1.4.3/jquery.timeago.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+
+<script>
+/*
+* Dynex PoUW Dashboard Example - Written by Y3TI (DeepMinerz)
+*/
+var apiOngoingURL = "https://dynex.dyndns.org/apijobs.php?jobtype=ongoing";
+var apiCompleteURL = "https://dynex.dyndns.org/apijobs.php?jobtype=finished";
+
+function convertToJobtype(jobtype) {
+	jobTypeStr = "";
+	if (jobtype == 0) { jobTypeStr = "SAT"; }
+	if (jobtype == 1) { jobTypeStr = ""; }		// Currently Not In Use
+	if (jobtype == 2) { jobTypeStr = ""; }		// Currently Not In Use
+	if (jobtype == 3) { jobTypeStr = "MAXSAT"; }
+	if (jobtype == 4) { jobTypeStr = ""; }		// Currently Not In Use
+	if (jobtype == 5) { jobTypeStr = "ML"; }
+	return jobTypeStr;
+}
+$.get(apiOngoingURL, function(data, status) {
+	data = data[0];	
+	var onGoingTemplate = "";
+	$.each(data, function(index, item) {
+		var i = 0; var jobTitle = ""; var jobDesc = "";
+		var titleArray = item['JOB_TEXT'].split(" ");
+		do {
+			if (i == titleArray.length - 1) {
+				jobDesc += titleArray[i] + " ";
+			} else {
+				jobTitle += titleArray[i] + " ";
+			}
+			i++;
+		} while (i < titleArray.length);
+		onGoingTemplate += "<div class=\"col-sm-12 col-md-4 col-xl-4 col-xxl-4 mb-2\">";
+			onGoingTemplate += "<div class=\"border border-1 border-light border-radius-lg p-3\" style=\"border-radius: 10px;\">";
+				onGoingTemplate += "<div class=\"row\">";
+					onGoingTemplate += "<div class=\"col-sm-12 col-md-6 col-xl-6 col-xxl-6\">";
+						onGoingTemplate += "<h6 class=\"text-light\">Job #" + item['JOB_ID'] + "</h6>";
+					onGoingTemplate += "</div>";
+					onGoingTemplate += "<div class=\"col-sm-12 col-md-6 col-xl-6 col-xxl-6 text-right\">";
+						onGoingTemplate += "<h6 class=\"text-light\">" + convertToJobtype(item['JOB_TYPE']) + "</h6>";
+					onGoingTemplate += "</div>";
+				onGoingTemplate += "</div>";
+				onGoingTemplate += "<div class=\"row mb-3\">";
+					onGoingTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						onGoingTemplate += "<small class=\"text-light text-sm\">" + jobTitle + "<br />" + jobDesc + "</small>";
+					onGoingTemplate += "</div>";
+				onGoingTemplate += "</div>";					
+				onGoingTemplate += "<div class=\"row mb-3\">";
+					onGoingTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						onGoingTemplate += "<small class=\"text-light text-sm\">Date Started: " + item['DATE_START'] + "</small>";
+					onGoingTemplate += "</div>";
+				onGoingTemplate += "</div>";			
+				onGoingTemplate += "<div class=\"row mb-1\">";
+					onGoingTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						onGoingTemplate += "<small class=\"text-light text-sm\">Fee: " + item['BLOCK_FEE'] + " | Chips: " + Number(item['CHIPS']).toLocaleString('en') + "</small>";
+					onGoingTemplate += "</div>";
+				onGoingTemplate += "</div>";
+				onGoingTemplate += "<div class=\"row\">";
+					onGoingTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						onGoingTemplate += "<small class=\"pouwFee text-sm\">Reward: " + Number(item['SOLUTION_REWARD']).toLocaleString('en') + " DNX</small>";
+					onGoingTemplate += "</div>";
+				onGoingTemplate += "</div>";					
+			onGoingTemplate += "</div>";
+		onGoingTemplate += "</div>";
+	});
+	$('#currentDnxJobs').html(onGoingTemplate);
+});
+$.get(apiCompleteURL, function(data, status) {
+	data = data[0];	
+	var completeTemplate = "";
+	var counter = 0;
+	$.each(data, function(index, item) {
+		var i = 0; var jobTitle = ""; var jobDesc = "";
+		var titleArray = item['JOB_TEXT'].split(" ");
+		do {
+			if (i == titleArray.length - 1) {
+				jobDesc += titleArray[i] + " ";
+			} else {
+				jobTitle += titleArray[i] + " ";
+			}
+			i++;
+		} while (i < titleArray.length);	
+		counter++;
+		completeTemplate += "<div class=\"col-sm-12 col-md-4 col-xl-4 col-xxl-4 mb-2\">";
+			completeTemplate += "<div class=\"border border-1 border-light border-radius-lg p-3\" style=\"border-radius: 10px;\">";
+				completeTemplate += "<div class=\"row\">";
+					completeTemplate += "<div class=\"col-sm-12 col-md-6 col-xl-6 col-xxl-6\">";
+						completeTemplate += "<h6 class=\"text-light\">Job #" + item['JOB_ID'] + "</h6>";
+					completeTemplate += "</div>";
+					completeTemplate += "<div class=\"col-sm-12 col-md-6 col-xl-6 col-xxl-6 text-right\">";
+						completeTemplate += "<h6 class=\"text-light\">" + convertToJobtype(item['JOB_TYPE']) + "</h6>";
+					completeTemplate += "</div>";
+				completeTemplate += "</div>";
+				completeTemplate += "<div class=\"row mb-3\">";
+					completeTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						completeTemplate += "<small class=\"text-light text-sm\">" + jobTitle + "<br />" + jobDesc + "</small>";
+					completeTemplate += "</div>";
+				completeTemplate += "</div>";					
+				completeTemplate += "<div class=\"row mb-1\">";
+					completeTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						completeTemplate += "<small class=\"text-light text-sm\">Date Started: " + item['DATE_START'] + "</small>";
+					completeTemplate += "</div>";
+				completeTemplate += "</div>";
+				completeTemplate += "<div class=\"row mb-3\">";
+					completeTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						completeTemplate += "<small class=\"text-light text-sm\">Date Ended: " + item['DATE_END'] + "</small>";
+					completeTemplate += "</div>";
+				completeTemplate += "</div>";				
+				completeTemplate += "<div class=\"row mb-1\">";
+					completeTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						completeTemplate += "<small class=\"text-light text-sm\">Fee: " + item['BLOCK_FEE'] + " | Chips: " + Number(item['CHIPS_REQUIRED']).toLocaleString('en') + "</small>";
+					completeTemplate += "</div>";
+				completeTemplate += "</div>";
+				completeTemplate += "<div class=\"row\">";
+					completeTemplate += "<div class=\"col-sm-12 col-md-12 col-xl-12 col-xxl-12\">";
+						completeTemplate += "<small class=\"pouwFee text-sm\">Reward: " + Number(item['SOLUTION_REWARD']).toLocaleString('en') + " DNX</small>";
+					completeTemplate += "</div>";
+				completeTemplate += "</div>";					
+			completeTemplate += "</div>";
+		completeTemplate += "</div>";
+		if (counter == 21) { return false; }
+	});
+	$('#completeDnxJobs').html(completeTemplate);
+});
+</script>
+</html>
